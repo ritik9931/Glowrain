@@ -1,0 +1,62 @@
+<!-- Toast -->
+<div class="position-fixed top-0 end-0 p-3" style="z-index: 1055">
+  <div *ngIf="showToast" class="toast show {{ toastClass }} p-2 rounded">
+    {{ toastMessage }}
+  </div>
+</div>
+
+<div class="container d-flex justify-content-center align-items-center">
+  <div class="card shadow p-4" style="width: 400px;">
+    <h3 class="text-center mb-4">Login</h3>
+    
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+
+      <!-- Username -->
+      <div class="mb-3">
+        <label for="username" class="form-label">Username</label>
+        <input
+          type="text"
+          id="username"
+          formControlName="username"
+          class="form-control"
+          [ngClass]="{'is-invalid': submitted && f.username.errors}"
+        />
+        <div *ngIf="submitted && f.username.errors" class="invalid-feedback">
+          <div *ngIf="f.username.errors['required']">Username is required.</div>
+          <div *ngIf="f.username.errors['minlength']">Minimum 3 characters required.</div>
+        </div>
+      </div>
+
+      <!-- Password -->
+      <div class="mb-3">
+        <label for="password" class="form-label">Password</label>
+        <div class="input-group">
+          <input
+            [type]="hidePassword ? 'password' : 'text'"
+            id="password"
+            formControlName="password"
+            class="form-control"
+            [ngClass]="{'is-invalid': submitted && f.password.errors}"
+          />
+          <button type="button" class="btn btn-outline-secondary" (click)="togglePasswordVisibility()">
+            <i class="bi" [ngClass]="hidePassword ? 'bi-eye' : 'bi-eye-slash'"></i>
+          </button>
+        </div>
+        <div *ngIf="submitted && f.password.errors" class="invalid-feedback d-block">
+          <div *ngIf="f.password.errors['required']">Password is required.</div>
+          <div *ngIf="f.password.errors['minlength']">Minimum 6 characters required.</div>
+        </div>
+      </div>
+
+      <!-- Remember Me -->
+      <div class="form-check mb-3">
+        <input type="checkbox" class="form-check-input" id="rememberMe" formControlName="rememberMe">
+        <label class="form-check-label" for="rememberMe">Remember Me</label>
+      </div>
+
+      <!-- Submit -->
+      <button type="submit" class="btn btn-primary w-100">Login</button>
+
+    </form>
+  </div>
+</div>

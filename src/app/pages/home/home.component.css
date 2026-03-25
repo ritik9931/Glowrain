@@ -1,0 +1,131 @@
+/* 🏠 General Styles */
+.home-container {
+  background-color: #f8f9fa;
+}
+
+/* HERO SECTION
+.hero-section {
+  background: url('/assets/images/hero-banner.png') center/cover no-repeat;
+  height: 80vh;
+  position: relative;
+}
+
+.hero-section .overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.4);
+}
+
+.hero-section .content {
+  z-index: 2;
+}
+
+.hero-section h1 {
+  font-size: 3rem;
+  color: #fff;
+}
+
+.hero-section p {
+  font-size: 1.25rem;
+  color: #f1f1f1;
+}
+
+.bg-video {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  min-width: 100%;
+  min-height: 100%;
+  transform: translate(-50%, -50%);
+  object-fit: cover;
+  z-index: -1;
+} */
+
+
+/* HERO SECTION */
+.hero-section {
+  height: 100vh;                 /* Full screen */
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Background Video Styling */
+.bg-video {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  min-width: 100%;
+  min-height: 100%;
+  transform: translate(-50%, -50%);
+  object-fit: cover;
+  z-index: 0; /* Behind everything */
+}
+
+/* Dark Overlay */
+.hero-section .overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.45);
+  z-index: 1; /* Above video */
+}
+
+/* Content */
+.hero-section .content {
+  z-index: 2; /* Above overlay */
+  position: relative;
+  text-align: center;
+}
+
+.hero-section h1 {
+  font-size: 3rem;
+  color: #fff;
+}
+
+.hero-section p {
+  font-size: 1.25rem;
+  color: #f1f1f1;
+}
+
+
+/* CATEGORY CARDS */
+.category-card img {
+  height: 180px;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.category-card:hover img {
+  transform: scale(1.05);
+}
+
+/* PRODUCT CARDS */
+.product-card img {
+  height: 200px;
+  object-fit: contain;
+  transition: transform 0.3s ease;
+}
+
+.product-card:hover img {
+  transform: scale(1.07);
+}
+
+/* TESTIMONIALS */
+.testimonials .shadow-sm {
+  transition: transform 0.3s ease;
+}
+
+.testimonials .shadow-sm:hover {
+  transform: translateY(-5px);
+}
+
+/* NEWSLETTER */
+.newsletter input {
+  max-width: 400px;
+}

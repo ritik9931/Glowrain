@@ -1,0 +1,86 @@
+/* Container with full viewport height and background */
+.container {
+    background-image: url('/assets/images/loginbg.png');
+    background-size: cover;      /* ensures image covers the entire container */
+    background-position: center; /* centers the background image */
+    background-repeat: no-repeat;
+    height: 100vh;
+    width: 100%;
+    display: flex;
+    justify-content: center;     /* centers card horizontally */
+    align-items: center;         /* centers card vertically */
+    position: relative;
+    max-width: 100%;
+}
+
+/* Body background fallback */
+body {
+    background-color: #f0f2f5;
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
+
+/* Card styling with glass effect */
+.card {
+    background: rgba(255, 255, 255, 0.2); /* white with 20% opacity */
+    backdrop-filter: blur(10px);           /* background blur effect */
+    -webkit-backdrop-filter: blur(10px);   /* Safari support */
+    border-radius: 1rem;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    width: 90%;         /* responsive width for small screens */
+    max-width: 100%;   /* limits width on larger screens */
+    padding: 2rem;
+    box-sizing: border-box;
+    display: flex;
+    transition: all 0.3s ease-in-out;
+}
+
+/* Input field invalid state */
+input.is-invalid {
+    border-color: #dc3545;
+}
+
+/* Eye icon inside input group */
+.input-group .btn i {
+    color: #fff;         /* white for dark background */
+    font-size: 1.2rem;   /* adjust size */
+}
+
+/* Responsive adjustments */
+@media (min-width: 576px) {
+    .card {
+        padding: 2.5rem;
+        max-width: 400px;
+    }
+}
+
+@media (min-width: 768px) {
+    .card {
+        max-width: 450px;
+        padding: 3rem;
+    }
+}
+
+@media (min-width: 992px) {
+    .card {
+        max-width: 500px;
+    }
+}
+
+@media (min-width: 1200px) {
+    .card {
+        max-width: 550px;
+    }
+}
+
+/* Optional: Adjust font-size for mobile devices */
+@media (max-width: 575.98px) {
+    .card {
+        padding: 1.5rem;
+    }
+
+    input,
+    button {
+        font-size: 0.9rem;
+    }
+}
