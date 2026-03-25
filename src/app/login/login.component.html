@@ -1,62 +1,71 @@
 <!-- Toast -->
-<div class="position-fixed top-0 end-0 p-3" style="z-index: 1055">
-  <div *ngIf="showToast" class="toast show {{ toastClass }} p-2 rounded">
-    {{ toastMessage }}
-  </div>
+<div class="lg-toast"
+     [class.show]="toast.show"
+     [class.toast-success]="toast.type==='success'"
+     [class.toast-error]="toast.type==='error'">
+  {{ toast.message }}
 </div>
 
-<div class="container d-flex justify-content-center align-items-center">
-  <div class="card shadow p-4" style="width: 400px;">
-    <h3 class="text-center mb-4">Login</h3>
-    
+<div class="lg-page">
+  <div class="lg-card">
+
+    <!-- Brand -->
+    <div class="lg-brand">
+      <span class="lg-logo">🛍️</span>
+      <h1 class="lg-title">Ritik Store</h1>
+      <p class="lg-subtitle">Sign in to your account</p>
+    </div>
+
     <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
 
-      <!-- Username -->
-      <div class="mb-3">
-        <label for="username" class="form-label">Username</label>
-        <input
-          type="text"
-          id="username"
-          formControlName="username"
-          class="form-control"
-          [ngClass]="{'is-invalid': submitted && f.username.errors}"
-        />
-        <div *ngIf="submitted && f.username.errors" class="invalid-feedback">
-          <div *ngIf="f.username.errors['required']">Username is required.</div>
-          <div *ngIf="f.username.errors['minlength']">Minimum 3 characters required.</div>
-        </div>
+      <!-- Email -->
+      <div class="lg-field">
+        <label>Email Address</label>
+        <input type="email"
+               formControlName="email"
+               placeholder="you@example.com"
+               [class.invalid]="submitted && f['email'].errors">
+        <small *ngIf="submitted && f['email'].errors?.['required']">Email is required</small>
+        <small *ngIf="submitted && f['email'].errors?.['email']">Enter a valid email</small>
       </div>
 
       <!-- Password -->
-      <div class="mb-3">
-        <label for="password" class="form-label">Password</label>
-        <div class="input-group">
-          <input
-            [type]="hidePassword ? 'password' : 'text'"
-            id="password"
-            formControlName="password"
-            class="form-control"
-            [ngClass]="{'is-invalid': submitted && f.password.errors}"
-          />
-          <button type="button" class="btn btn-outline-secondary" (click)="togglePasswordVisibility()">
-            <i class="bi" [ngClass]="hidePassword ? 'bi-eye' : 'bi-eye-slash'"></i>
+      <div class="lg-field">
+        <div class="lg-label-row">
+          <label>Password</label>
+        </div>
+        <div class="lg-password-wrap" [class.invalid]="submitted && f['password'].errors">
+          <input [type]="hidePassword ? 'password' : 'text'"
+                 formControlName="password"
+                 placeholder="Min 6 characters">
+          <button type="button" class="lg-eye" (click)="togglePasswordVisibility()">
+            <i class="bi" [class.bi-eye]="hidePassword" [class.bi-eye-slash]="!hidePassword"></i>
           </button>
         </div>
-        <div *ngIf="submitted && f.password.errors" class="invalid-feedback d-block">
-          <div *ngIf="f.password.errors['required']">Password is required.</div>
-          <div *ngIf="f.password.errors['minlength']">Minimum 6 characters required.</div>
-        </div>
+        <small *ngIf="submitted && f['password'].errors?.['required']">Password is required</small>
+        <small *ngIf="submitted && f['password'].errors?.['minlength']">Minimum 6 characters</small>
       </div>
 
-      <!-- Remember Me -->
-      <div class="form-check mb-3">
-        <input type="checkbox" class="form-check-input" id="rememberMe" formControlName="rememberMe">
-        <label class="form-check-label" for="rememberMe">Remember Me</label>
-      </div>
+      <!-- Remember me -->
+      <label class="lg-remember">
+        <input type="checkbox" formControlName="rememberMe">
+        <span class="lg-check-track"><span class="lg-check-thumb"></span></span>
+        Remember me
+      </label>
 
       <!-- Submit -->
-      <button type="submit" class="btn btn-primary w-100">Login</button>
+      <button type="submit" class="lg-btn-submit" [disabled]="loading">
+        <span *ngIf="!loading">Sign In</span>
+        <span *ngIf="loading" class="lg-spinner"></span>
+      </button>
 
     </form>
+
+    <!-- Register link -->
+    <p class="lg-register-link">
+      Don't have an account?
+      <a routerLink="/register">Create one →</a>
+    </p>
+
   </div>
 </div>

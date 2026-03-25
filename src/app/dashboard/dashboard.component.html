@@ -1,82 +1,165 @@
-<div class="container-fluid p-2 p-md-4">
+<!-- Toast -->
+<div class="db-toast" [class.show]="toast.show"
+     [class.toast-success]="toast.type==='success'"
+     [class.toast-error]="toast.type==='error'">
+  {{ toast.message }}
+</div>
 
-  <!-- Stats Cards -->
-  <div class="row g-2 mb-4">
-    <div class="col-12 col-sm-6 col-md-3" *ngFor="let stat of stats">
-      <div class="card text-white {{ stat.bg }} shadow-sm h-100 hover-scale">
-        <div class="card-body d-flex flex-column flex-sm-row flex-wrap align-items-center justify-content-center gap-2">
-          <!-- Icon -->
-          <i class="bi {{ stat.icon }} stat-icon"></i>
-          <!-- Text -->
-          <div class="text-center text-sm-start">
-            <h6 class="mb-1 stat-title">{{ stat.title }}</h6>
-            <h5 class="mb-0 stat-value">{{ stat.value }}</h5>
-          </div>
-        </div>
-      </div>
+<!-- Loading -->
+<div *ngIf="loading" class="db-loading">
+  <div class="db-spinner"></div>
+  <p>Loading dashboard...</p>
+</div>
+
+<div *ngIf="!loading" class="db-page">
+
+  <!-- ── Page Header ─────────────────────────────────────── -->
+  <div class="db-header">
+    <div>
+      <h1 class="db-title">Dashboard</h1>
+      <p class="db-subtitle">Welcome back — here's what's happening today</p>
     </div>
+    <a routerLink="/pages/add-product" class="db-btn-primary">
+      <i class="bi bi-plus-lg me-1"></i> Add Product
+    </a>
   </div>
 
-  <!-- Charts & Latest Orders -->
-  <div class="row g-3">
+  <!-- ── KPI Cards ───────────────────────────────────────── -->
+  <div class="db-kpi-grid">
 
-    <!-- Sales Chart -->
-    <div class="col-12 col-lg-6">
-      <div class="card shadow-sm h-100 hover-scale">
-        <div class="card-header">
-          <h6 class="mb-0">Sales Trend</h6>
-        </div>
-        <div class="card-body chart-container">
-          <canvas baseChart
-                  [data]="salesData"
-                  [options]="salesOptions"
-                  chartType="line"
-                  class="w-100 h-100">
-          </canvas>
-        </div>
+    <div class="db-kpi-card">
+      <div class="db-kpi-icon icon-blue">
+        <i class="bi bi-bag-check-fill"></i>
+      </div>
+      <div class="db-kpi-body">
+        <span class="db-kpi-label">Total Orders</span>
+        <span class="db-kpi-value">{{ totalOrders }}</span>
       </div>
     </div>
 
-    <!-- Latest Orders Table -->
-    <div class="col-12 col-lg-6">
-      <div class="card shadow-sm h-100 hover-scale">
-        <div class="card-header">
-          <h6 class="mb-0">Latest Orders</h6>
-        </div>
-        <div class="card-body p-1 table-responsive">
-          <table class="table table-hover mb-0">
-            <thead class="table-light">
-              <tr>
-                <th class="text-nowrap">Order ID</th>
-                <th>Customer</th>
-                <th>Status</th>
-                <th>Amount</th>
-                <th class="text-nowrap">Date</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let order of latestOrders" class="table-row-hover">
-                <td class="text-nowrap">#{{ order.id }}</td>
-                <td>{{ order.customer }}</td>
-                <td>
-                  <span class="badge"
-                        [ngClass]="{
-                          'bg-warning': order.status === 'Pending',
-                          'bg-success': order.status === 'Delivered',
-                          'bg-info': order.status === 'Shipped',
-                          'bg-danger': order.status === 'Cancelled'
-                        }">
-                    {{ order.status }}
-                  </span>
-                </td>
-                <td>{{ order.amount }}</td>
-                <td class="text-nowrap">{{ order.date }}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+    <div class="db-kpi-card">
+      <div class="db-kpi-icon icon-green">
+        <i class="bi bi-currency-rupee"></i>
+      </div>
+      <div class="db-kpi-body">
+        <span class="db-kpi-label">Total Revenue</span>
+        <span class="db-kpi-value">₹{{ totalRevenue | number }}</span>
+      </div>
+    </div>
+
+    <div class="db-kpi-card">
+      <div class="db-kpi-icon icon-amber">
+        <i class="bi bi-hourglass-split"></i>
+      </div>
+      <div class="db-kpi-body">
+        <span class="db-kpi-label">Pending Orders</span>
+        <span class="db-kpi-value">{{ pendingOrders }}</span>
+      </div>
+    </div>
+
+    <div class="db-kpi-card">
+      <div class="db-kpi-icon icon-purple">
+        <i class="bi bi-box-seam-fill"></i>
+      </div>
+      <div class="db-kpi-body">
+        <span class="db-kpi-label">Total Products</span>
+        <span class="db-kpi-value">{{ totalProducts }}</span>
       </div>
     </div>
 
   </div>
+
+  <!-- ── Charts Row ──────────────────────────────────────── -->
+  <div class="db-charts-grid">
+
+    <div class="db-card db-chart-card">
+      <div class="db-card-head">
+        <h6><i class="bi bi-bar-chart-fill me-2 text-primary"></i>Revenue — last 6 months</h6>
+      </div>
+      <div class="db-chart-wrap">
+        <canvas baseChart [data]="salesChartData" [options]="salesChartOptions" type="bar"></canvas>
+      </div>
+    </div>
+
+    <div class="db-card db-donut-card">
+      <div class="db-card-head">
+        <h6><i class="bi bi-pie-chart-fill me-2 text-primary"></i>Orders by Status</h6>
+      </div>
+      <div class="db-donut-wrap">
+        <canvas baseChart [data]="statusChartData" [options]="statusChartOptions" type="doughnut"></canvas>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── Orders Table ────────────────────────────────────── -->
+  <div class="db-card db-table-card">
+
+    <div class="db-card-head">
+      <h6><i class="bi bi-receipt me-2 text-primary"></i>Recent Orders</h6>
+      <span class="db-order-count">{{ allOrders.length }} total</span>
+    </div>
+
+    <div class="db-table-wrap">
+      <table class="db-table">
+        <thead>
+          <tr>
+            <th>Order ID</th>
+            <th>Customer</th>
+            <th>Location</th>
+            <th>Items</th>
+            <th>Total</th>
+            <th>Date</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let order of allOrders" class="db-tr">
+            <td class="db-order-id">#{{ order.id }}</td>
+            <td>
+              <div class="db-customer">
+                <div class="db-avatar">{{ order.full_name?.charAt(0) | uppercase }}</div>
+                <div>
+                  <span class="db-cname">{{ order.full_name }}</span>
+                  <span class="db-cphone">+91 {{ order.phone }}</span>
+                </div>
+              </div>
+            </td>
+            <td class="db-location">{{ order.city }}, {{ order.state }}</td>
+            <td>
+              <span class="db-item-pill">
+                {{ order.items?.length || 0 }} item{{ order.items?.length !== 1 ? 's' : '' }}
+              </span>
+            </td>
+            <td class="db-amount">₹{{ order.total | number }}</td>
+            <td class="db-date">{{ order.placed_at | date:'dd MMM, hh:mm a' }}</td>
+            <td>
+              <div class="db-status-wrap">
+                <select
+                  class="db-status-select"
+                  [class]="getStatusClass(order.status)"
+                  [value]="order.status"
+                  [disabled]="updatingId === order.id"
+                  (change)="updateStatus(order, $any($event.target).value)">
+                  <option *ngFor="let s of STATUS_OPTIONS" [value]="s">
+                    {{ s | titlecase }}
+                  </option>
+                </select>
+                <span *ngIf="updatingId === order.id" class="db-updating">
+                  <i class="bi bi-arrow-repeat"></i>
+                </span>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div *ngIf="allOrders.length === 0" class="db-empty">
+        <i class="bi bi-inbox" style="font-size:2rem;color:#cbd5e1"></i>
+        <p>No orders yet</p>
+      </div>
+    </div>
+
+  </div>
+
 </div>

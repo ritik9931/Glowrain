@@ -1,0 +1,47 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark px-4">
+
+  <!-- Brand -->
+  <a class="navbar-brand fw-bold fs-4" routerLink="/">🛍 Ritik Store</a>
+
+  <!-- Mobile toggler -->
+  <button class="navbar-toggler" type="button"
+          data-bs-toggle="collapse" data-bs-target="#navMenu"
+          aria-controls="navMenu" aria-expanded="false">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  <div class="collapse navbar-collapse" id="navMenu">
+
+    <!-- Left links -->
+    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+      <li class="nav-item">
+        <a class="nav-link" routerLink="/"
+           routerLinkActive="active"
+           [routerLinkActiveOptions]="{exact: true}">Home</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" routerLink="/products"
+           routerLinkActive="active">Products</a>
+      </li>
+    </ul>
+
+    <!-- Right side -->
+    <div class="d-flex align-items-center gap-2">
+
+      <!-- Cart button with live badge -->
+      <a routerLink="/cart" class="btn btn-outline-light position-relative">
+        🛒 Cart
+        <span *ngIf="cartCount > 0"
+              class="position-absolute top-0 start-100 translate-middle
+                     badge rounded-pill bg-danger"
+              style="font-size:0.7rem; min-width:20px;">
+          {{ cartCount }}
+        </span>
+      </a>
+
+      <a routerLink="/login" class="btn btn-primary">Login</a>
+
+    </div>
+  </div>
+
+</nav>

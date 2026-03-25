@@ -3,8 +3,8 @@
   <!-- 🏠 HERO SECTION -->
   <section class="hero-section text-center text-white d-flex flex-column justify-content-center align-items-center">
     <video autoplay muted loop playsinline class="bg-video">
-    <source src="assets/store_video.mp4" type="video/mp4">
-  </video>
+      <source src="assets/store_video.mp4" type="video/mp4">
+    </video>
     <div class="overlay"></div>
     <div class="content position-relative">
       <h1 class="fw-bold">Welcome to Ritik Store</h1>
@@ -27,20 +27,58 @@
     </div>
   </section>
 
-  <!-- 🌟 BEST SELLERS -->
+  <!-- 🌟 LATEST PRODUCTS -->
   <section class="best-sellers bg-light py-5">
     <div class="container">
-      <h2 class="text-center mb-4">Best Sellers</h2>
+      <h2 class="text-center mb-4">Latest Products</h2>
+
       <div class="row g-4">
-        <div class="col-lg-3 col-md-4 col-sm-6" *ngFor="let product of bestSellers">
-          <div class="product-card text-center p-3 shadow-sm rounded bg-white">
-            <img [src]="product.image" class="img-fluid rounded mb-2" alt="{{product.name}}">
-            <h6>{{product.name}}</h6>
-            <p class="text-muted mb-1">₹{{product.price}}</p>
-            <button class="btn btn-primary btn-sm">Add to Cart</button>
+        <div class="col-lg-3 col-md-4 col-sm-6"
+             *ngFor="let product of bestSellers">
+
+          <div class="product-card shadow-sm bg-white">
+
+            <a [routerLink]="['/product', product.id]"
+               class="text-decoration-none text-dark d-block">
+              <div class="product-img-wrapper">
+                <img [src]="product.image" alt="{{product.name}}">
+              </div>
+              <div class="p-3 text-center">
+                <h6 class="product-title">{{product.name}}</h6>
+                <p class="price">₹{{product.price}}</p>
+              </div>
+            </a>
+
+            <!-- ✅ CART BUTTON AREA -->
+            <div class="px-3 pb-3">
+
+              <!-- Not in cart yet → show Add button -->
+              <button *ngIf="getQty(product.id) === 0"
+                      class="btn btn-primary btn-sm w-100"
+                      (click)="add(product)">
+                🛒 Add to Cart
+              </button>
+
+              <!-- Already in cart → show  − qty + -->
+              <div *ngIf="getQty(product.id) > 0"
+                   class="qty-control d-flex align-items-center justify-content-between">
+
+                <button class="btn btn-outline-danger btn-sm qty-btn"
+                        (click)="decrease(product)">−</button>
+
+                <span class="qty-number fw-bold">{{ getQty(product.id) }}</span>
+
+                <button class="btn btn-outline-success btn-sm qty-btn"
+                        (click)="add(product)">+</button>
+
+              </div>
+
+            </div>
+
           </div>
         </div>
       </div>
+
     </div>
   </section>
 

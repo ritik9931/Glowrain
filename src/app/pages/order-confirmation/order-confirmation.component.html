@@ -1,0 +1,57 @@
+<div class="oc-page">
+  <div class="oc-card">
+
+    <!-- Success animation -->
+    <div class="oc-icon">
+      <div class="oc-circle">
+        <span class="oc-check">✓</span>
+      </div>
+    </div>
+
+    <h2 class="oc-title">Order Placed Successfully!</h2>
+    <p class="oc-subtitle">Thank you for shopping with Ritik Store 🎉</p>
+
+    <div class="oc-order-id">
+      Order ID: <strong>{{ orderId }}</strong>
+    </div>
+
+    <div *ngIf="order" class="oc-details">
+
+      <!-- Delivery address -->
+      <div class="oc-section">
+        <h6>📍 Delivering to</h6>
+        <p>
+          <strong>{{ order.address.fullName }}</strong> · +91 {{ order.address.phone }}<br>
+          {{ order.address.address }}, {{ order.address.city }},
+          {{ order.address.state }} — {{ order.address.pincode }}
+        </p>
+      </div>
+
+      <!-- Items -->
+      <div class="oc-section">
+        <h6>📦 Items Ordered</h6>
+        <div class="oc-items">
+          <div *ngFor="let item of order.items" class="oc-item">
+            <img [src]="item.image" [alt]="item.name">
+            <span class="oc-item-name">{{ item.name }}</span>
+            <span class="oc-item-qty">×{{ item.quantity }}</span>
+            <span class="oc-item-price">₹{{ item.price * item.quantity | number }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Total -->
+      <div class="oc-total-row">
+        <span>Total Paid (COD)</span>
+        <strong>₹{{ order.total | number }}</strong>
+      </div>
+
+    </div>
+
+    <!-- Actions -->
+    <div class="oc-actions">
+      <a routerLink="/pages/home" class="oc-btn-primary">Continue Shopping</a>
+    </div>
+
+  </div>
+</div>

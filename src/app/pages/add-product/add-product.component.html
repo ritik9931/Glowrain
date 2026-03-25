@@ -1,0 +1,158 @@
+<!-- 🔔 TOASTER -->
+<div class="toaster"
+     [class.show]="toast.show"
+     [class.toast-success]="toast.type === 'success'"
+     [class.toast-error]="toast.type === 'error'">
+  {{ toast.message }}
+</div>
+
+<div class="add-product-wrapper container-fluid">
+  <div class="add-product-card w-100">
+
+    <div class="card-header">
+      <h4>🛍 Add New Product</h4>
+      <p>Create and publish a new product to your store</p>
+    </div>
+
+    <form [formGroup]="productForm" (ngSubmit)="submitProduct()">
+
+      <!-- BASIC INFO -->
+      <div class="section">
+        <h5>Basic Information</h5>
+        <div class="row">
+
+          <div class="col-md-6 mb-3">
+            <label>Product Name *</label>
+            <input type="text" class="form-control"
+                   formControlName="name" placeholder="Enter product name">
+            <small class="text-danger"
+              *ngIf="productForm.get('name')?.touched && productForm.get('name')?.invalid">
+              Product name is required
+            </small>
+          </div>
+
+          <div class="col-md-3 mb-3">
+            <label>Price (₹) *</label>
+            <input type="number" class="form-control"
+                   formControlName="price" placeholder="0.00">
+          </div>
+
+          <div class="col-md-3 mb-3">
+            <label>Stock *</label>
+            <input type="number" class="form-control"
+                   formControlName="stock" placeholder="Available quantity">
+          </div>
+
+          <div class="col-12 mb-3">
+            <label>Description *</label>
+            <textarea class="form-control" rows="4"
+                      formControlName="description"
+                      placeholder="Write product description..."></textarea>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- IMAGE SECTION -->
+      <div class="section">
+        <h5>Product Images</h5>
+        <p class="image-note">Upload up to 4 images (JPEG, PNG)</p>
+
+        <div class="image-grid">
+          <div class="image-upload-box"
+               *ngFor="let img of [1,2,3,4]; let i = index">
+            <input type="file" (change)="onFileChange($event, img)" accept="image/*">
+            <div *ngIf="!previewImgs[i]" class="upload-placeholder">
+              <i class="bi bi-cloud-upload"></i>
+              <span>Upload Image {{img}}</span>
+            </div>
+            <img *ngIf="previewImgs[i]" [src]="previewImgs[i]" class="preview-img">
+          </div>
+        </div>
+      </div>
+
+      <!-- SUBMIT — label changed to "Add Product" -->
+      <div class="form-footer">
+        <button type="submit" class="btn btn-success btn-lg"
+                [disabled]="loading || productForm.invalid">
+          <span *ngIf="!loading">Add Product</span>
+          <span *ngIf="loading">
+            <span class="spinner-border spinner-border-sm me-2"></span>Saving...
+          </span>
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<hr class="my-5">
+
+<!-- PRODUCT LIST -->
+<div class="card shadow p-4">
+  <h3 class="fw-bold mb-3">📦 Product List</h3>
+
+  <input class="form-control mb-3" placeholder="Search product"
+         [(ngModel)]="searchText" (input)="searchProducts()">
+
+  <div class="table-responsive">
+    <table class="table table-bordered table-hover align-middle">
+      <thead class="table-dark">
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Price</th>
+          <th>Stock</th>
+          <th>Images</th>
+          <th>Date</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let p of paginatedProducts">
+          <td>{{p.id}}</td>
+          <td>{{p.name}}</td>
+          <td>₹{{p.price}}</td>
+          <td>{{p.stock}}</td>
+
+          <td>
+            <span *ngIf="p.img1">
+              <img [src]="imageUrl(p.img1)" height="40" class="me-1 rounded border"
+                   style="cursor:pointer" (click)="previewImage(p.img1)" title="Image 1">
+            </span>
+            <span *ngIf="p.img2">
+              <img [src]="imageUrl(p.img2)" height="40" class="me-1 rounded border"
+                   style="cursor:pointer" (click)="previewImage(p.img2)" title="Image 2">
+            </span>
+            <span *ngIf="p.img3">
+              <img [src]="imageUrl(p.img3)" height="40" class="me-1 rounded border"
+                   style="cursor:pointer" (click)="previewImage(p.img3)" title="Image 3">
+            </span>
+            <span *ngIf="p.img4">
+              <img [src]="imageUrl(p.img4)" height="40" class="rounded border"
+                   style="cursor:pointer" (click)="previewImage(p.img4)" title="Image 4">
+            </span>
+            <span *ngIf="!p.img1 && !p.img2 && !p.img3 && !p.img4"
+                  class="text-muted small">No images</span>
+          </td>
+
+          <td>{{p.created_at | date:'short'}}</td>
+
+          <td>
+            <button class="btn btn-sm btn-danger"
+                    (click)="deleteProduct(p.id)">🗑 Delete</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="d-flex justify-content-center mt-3">
+    <button class="btn btn-outline-primary me-2"
+            (click)="page=page-1" [disabled]="page==1">Prev</button>
+    <span class="px-3">Page {{page}}</span>
+    <button class="btn btn-outline-primary"
+            (click)="page=page+1"
+            [disabled]="page*pageSize>=filtered.length">Next</button>
+  </div>
+</div>

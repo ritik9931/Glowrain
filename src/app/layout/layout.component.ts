@@ -1,6 +1,8 @@
-import { Component, HostListener } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterOutlet, RouterLink } from '@angular/router';
+import { CartService } from '../services/cart.service';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-layout',
@@ -9,50 +11,42 @@ import { Router, RouterOutlet, RouterLink } from '@angular/router';
   templateUrl: './layout.component.html',
   styleUrls: ['./layout.component.css'],
 })
-export class LayoutComponent {
+export class LayoutComponent implements OnInit {
+
   isSidebarOpen = false;
+  isSearchOpen  = false;
+  currentYear   = new Date().getFullYear();
+
+  cartCount  = 0;
   isLoggedIn = false;
-  isSearchOpen = false;
-  currentYear: number = new Date().getFullYear();
+  userName   = '';
+  isAdmin    = false;
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private cartService: CartService,
+    private authService: AuthService
+  ) {}
 
-  ngOnInit(): void {
-    this.isLoggedIn = !!localStorage.getItem('authToken');
+  ngOnInit() {
+    // Cart count
+    this.cartService.cart$.subscribe(items => {
+      this.cartCount = items.reduce((t, i) => t + i.quantity, 0);
+    });
+
+    // Auth state — reactive, updates on login/logout
+    this.authService.user$.subscribe(user => {
+      this.isLoggedIn = !!user;
+      this.userName   = user?.name || '';
+      this.isAdmin    = user?.is_admin === 'YES';
+    });
   }
 
-  toggleSidebar() {
-    this.isSidebarOpen = !this.isSidebarOpen;
-  }
-
-  closeSidebar() {
-    this.isSidebarOpen = false;
-  }
-
-  toggleSearch() {
-    this.isSearchOpen = !this.isSearchOpen;
-  }
+  toggleSidebar() { this.isSidebarOpen = !this.isSidebarOpen; }
+  closeSidebar()  { this.isSidebarOpen = false; }
+  toggleSearch()  { this.isSearchOpen  = !this.isSearchOpen; }
 
   logout() {
-    localStorage.removeItem('authToken');
-    this.isLoggedIn = false;
-    this.router.navigate(['/login']);
-  }
-
-  /** ✅ Close sidebar when clicking outside */
-  @HostListener('document:click', ['$event'])
-  onDocumentClick(event: MouseEvent): void {
-    const target = event.target as HTMLElement;
-    const sidebar = document.querySelector('.sidebar');
-    const toggleBtn = document.querySelector('.toggle-btn');
-
-    if (this.isSidebarOpen && sidebar && toggleBtn) {
-      const clickedInsideSidebar = sidebar.contains(target);
-      const clickedToggle = toggleBtn.contains(target);
-
-      if (!clickedInsideSidebar && !clickedToggle) {
-        this.isSidebarOpen = false;
-      }
-    }
+    this.authService.logout(); // clears localStorage + navigates to /login
   }
 }

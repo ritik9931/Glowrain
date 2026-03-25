@@ -1,72 +1,89 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
+import { HttpClientModule } from '@angular/common/http';
+import { AuthService } from './../services/auth.service';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, HttpClientModule, RouterLink],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css']
 })
 export class LoginComponent {
+
   loginForm: FormGroup;
-  submitted = false;
-  hidePassword = true; // for show/hide password
+  submitted    = false;
+  hidePassword = true;
+  loading      = false;
 
-  // ✅ Toast properties
-  showToast = false;
-  toastMessage = '';
-  toastClass = '';
+  toast = { show: false, message: '', type: 'success' };
+  private toastTimer: any;
 
-  constructor(private fb: FormBuilder, private router: Router) {
+  constructor(
+    private fb: FormBuilder,
+    private router: Router,
+    private authService: AuthService
+  ) {
+    // Redirect if already logged in
+    if (this.authService.isLoggedIn()) {
+      this.router.navigate(['/dashboard']);
+    }
+
     this.loginForm = this.fb.group({
-      username: ['', [Validators.required, Validators.minLength(3)]],
-      password: ['', [Validators.required, Validators.minLength(6)]],
+      email:      ['', [Validators.required, Validators.email]],
+      password:   ['', [Validators.required, Validators.minLength(6)]],
       rememberMe: [false]
     });
 
-    // If stored in localStorage, auto-fill username
-    const savedUsername = localStorage.getItem('rememberedUsername');
-    if (savedUsername) {
-      this.loginForm.patchValue({ username: savedUsername, rememberMe: true });
+    // Auto-fill remembered email
+    const saved = localStorage.getItem('rememberedEmail');
+    if (saved) {
+      this.loginForm.patchValue({ email: saved, rememberMe: true });
     }
   }
 
-  get f(): any { return this.loginForm.controls; }
+  get f() { return this.loginForm.controls; }
 
   togglePasswordVisibility() {
     this.hidePassword = !this.hidePassword;
   }
 
-  displayToast(message: string, type: 'success' | 'error' = 'success') {
-    this.toastMessage = message;
-    this.toastClass = type === 'success' ? 'bg-success text-white' : 'bg-danger text-white';
-    this.showToast = true;
-
-    setTimeout(() => this.showToast = false, 2000); // hide after 2s
+  showToast(message: string, type: 'success' | 'error' = 'success') {
+    clearTimeout(this.toastTimer);
+    this.toast = { show: true, message, type };
+    this.toastTimer = setTimeout(() => this.toast.show = false, 3000);
   }
 
   onSubmit() {
     this.submitted = true;
-
     if (this.loginForm.invalid) return;
 
-    // Store username if "Remember Me" checked
-    if (this.loginForm.value.rememberMe) {
-      localStorage.setItem('rememberedUsername', this.loginForm.value.username);
+    const { email, password, rememberMe } = this.loginForm.value;
+
+    if (rememberMe) {
+      localStorage.setItem('rememberedEmail', email);
     } else {
-      localStorage.removeItem('rememberedUsername');
+      localStorage.removeItem('rememberedEmail');
     }
 
-    // Simple dummy authentication
-    if (this.loginForm.value.username === 'ritik' && this.loginForm.value.password === 'ritik123') {
-      localStorage.setItem('authToken', 'loggedIn'); // token
-      this.displayToast('Login successful!', 'success');
-      setTimeout(() => this.router.navigate(['/dashboard']), 500); // navigate after toast
-    } else {
-      this.displayToast('Invalid username or password', 'error');
-    }
+    this.loading = true;
+
+    this.authService.login(email, password).subscribe({
+      next: (res) => {
+        this.loading = false;
+        this.showToast(`Welcome back, ${res.user.name}!`);
+        setTimeout(() => {
+          // Admin goes to dashboard, regular user goes to home
+          this.router.navigate(res.user.is_admin === 'YES' ? ['/dashboard'] : ['/pages/home']);
+        }, 600);
+      },
+      error: (err) => {
+        this.loading = false;
+        this.showToast(err.error?.error || 'Login failed. Please try again.', 'error');
+      }
+    });
   }
 }

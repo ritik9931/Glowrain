@@ -1,0 +1,140 @@
+<!-- Loading -->
+<div *ngIf="loading" class="pd-loading">
+  <div class="pd-spinner"></div>
+  <p>Loading product...</p>
+</div>
+
+<!-- Error -->
+<div *ngIf="error && !loading" class="pd-error container py-5 text-center">
+  <h3>⚠ Product not found</h3>
+  <a routerLink="/" class="btn btn-primary mt-3">← Back to Home</a>
+</div>
+
+<!-- Product Details -->
+<div *ngIf="product && !loading" class="pd-page">
+
+  <!-- Breadcrumb -->
+  <div class="pd-breadcrumb">
+    <div class="container">
+      <span><a href="pages/home">Home</a></span>
+      <span class="sep">›</span>
+      <span class="breadcrumb-text">Products</span>
+      <span class="sep">›</span>
+      <span class="current">{{ product.name }}</span>
+    </div>
+  </div>
+
+  <div class="container pd-container">
+    <div class="pd-grid">
+
+      <!-- LEFT: Image Gallery -->
+      <div class="pd-gallery">
+
+        <!-- Main Image -->
+        <div class="pd-main-img-wrap">
+          <img [src]="images[selectedImg] || 'assets/images/placeholder.png'"
+               [alt]="product.name"
+               class="pd-main-img">
+
+          <!-- Stock badge on image -->
+          <span class="pd-stock-badge"
+                [class.in-stock]="inStock"
+                [class.out-stock]="!inStock">
+            {{ inStock ? 'In Stock' : 'Out of Stock' }}
+          </span>
+        </div>
+
+        <!-- Thumbnails -->
+        <div class="pd-thumbs" *ngIf="images.length > 1">
+          <div *ngFor="let img of images; let i = index"
+               class="pd-thumb"
+               [class.active]="selectedImg === i"
+               (click)="selectImg(i)">
+            <img [src]="img" [alt]="'Image ' + (i+1)">
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT: Product Info -->
+      <div class="pd-info">
+
+        <!-- Title & Price -->
+        <h1 class="pd-title">{{ product.name }}</h1>
+
+        <div class="pd-price-row">
+          <span class="pd-price">₹{{ product.price | number }}</span>
+          <span class="pd-tax">Inclusive of all taxes</span>
+        </div>
+
+        <!-- Divider -->
+        <div class="pd-divider"></div>
+
+        <!-- Description -->
+        <div class="pd-desc-block">
+          <h6 class="pd-label">Description</h6>
+          <p class="pd-desc">{{ product.description }}</p>
+        </div>
+
+        <!-- Stock Info -->
+        <div class="pd-meta-row">
+          <div class="pd-meta-item">
+            <span class="pd-label">Availability</span>
+            <span class="pd-val"
+                  [class.text-success]="inStock"
+                  [class.text-danger]="!inStock">
+              {{ inStock ? product.stock + ' units available' : 'Currently unavailable' }}
+            </span>
+          </div>
+          <div class="pd-meta-item">
+            <span class="pd-label">Product ID</span>
+            <span class="pd-val">#{{ product.id }}</span>
+          </div>
+        </div>
+
+        <div class="pd-divider"></div>
+
+        <!-- Quantity + Add to Cart -->
+        <div class="pd-actions" *ngIf="inStock">
+
+          <div class="pd-qty-row">
+            <span class="pd-label">Quantity</span>
+            <div class="pd-qty-ctrl">
+              <button (click)="decreaseQty()" [disabled]="quantity === 1">−</button>
+              <span>{{ quantity }}</span>
+              <button (click)="increaseQty()" [disabled]="quantity >= product.stock">+</button>
+            </div>
+          </div>
+
+          <div class="pd-btn-row">
+            <button class="pd-btn-cart"
+                    [class.added]="addedToCart"
+                    (click)="addToCart()">
+              <span *ngIf="!addedToCart">🛒 Add to Cart</span>
+              <span *ngIf="addedToCart">✔ Added to Cart!</span>
+            </button>
+
+            <!-- If already in cart, show count -->
+            <div *ngIf="getCartQty() > 0" class="pd-in-cart">
+              🛒 {{ getCartQty() }} already in your cart
+            </div>
+          </div>
+
+        </div>
+
+        <div *ngIf="!inStock" class="pd-out-of-stock-msg">
+          This product is currently out of stock.
+        </div>
+
+        <!-- Trust badges -->
+        <div class="pd-badges">
+          <div class="pd-badge">🔒 Secure Payment</div>
+          <div class="pd-badge">🚚 Fast Delivery</div>
+          <div class="pd-badge">↩ Easy Returns</div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</div>

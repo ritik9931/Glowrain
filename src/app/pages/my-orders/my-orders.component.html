@@ -1,0 +1,163 @@
+<div class="mo-page">
+
+  <!-- ── Page Header ──────────────────────────────────────── -->
+  <div class="mo-header">
+    <div>
+      <h1 class="mo-title">My Orders</h1>
+      <p class="mo-subtitle">Track and manage your orders</p>
+    </div>
+  </div>
+
+  <!-- ── Phone Lookup ─────────────────────────────────────── -->
+  <div class="mo-lookup-card">
+    <div class="mo-lookup-inner">
+      <div class="mo-lookup-icon">📱</div>
+      <div class="mo-lookup-text">
+        <h6>Look up your orders</h6>
+        <p>Enter the mobile number you used while placing the order</p>
+      </div>
+      <div class="mo-lookup-form">
+        <div class="mo-phone-input">
+          <span class="mo-prefix">+91</span>
+          <input type="tel"
+                 [(ngModel)]="phoneInput"
+                 placeholder="10-digit mobile number"
+                 maxlength="10"
+                 (keyup.enter)="searchOrders()">
+        </div>
+        <button class="mo-btn-search"
+                (click)="searchOrders()"
+                [disabled]="loading || phoneInput.length < 10">
+          <span *ngIf="!loading">Search</span>
+          <span *ngIf="loading" class="mo-spin"></span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── No results ───────────────────────────────────────── -->
+  <div *ngIf="searched && orders.length === 0" class="mo-empty">
+    <div class="mo-empty-icon">📦</div>
+    <h3>No orders found</h3>
+    <p>We couldn't find any orders for +91 {{ phone }}</p>
+    <a routerLink="/pages/home" class="mo-btn-shop">Start Shopping →</a>
+  </div>
+
+  <!-- ── Orders List ──────────────────────────────────────── -->
+  <div *ngIf="orders.length > 0" class="mo-orders">
+
+    <p class="mo-result-label">
+      {{ orders.length }} order{{ orders.length !== 1 ? 's' : '' }} found for +91 {{ phone }}
+    </p>
+
+    <div *ngFor="let order of orders; let i = index"
+         class="mo-order-card"
+         [class.expanded]="expanded === order.id"
+         [style.animation-delay]="i * 60 + 'ms'">
+
+      <!-- ── Card Header (always visible) ─────────────────── -->
+      <div class="mo-order-head" (click)="toggleExpand(order.id)">
+
+        <div class="mo-order-meta">
+          <span class="mo-order-num">{{ orderNumber(order.id) }}</span>
+          <span class="mo-order-date">{{ order.placed_at | date:'dd MMM yyyy, hh:mm a' }}</span>
+        </div>
+
+        <div class="mo-order-summary">
+          <span class="mo-item-count">
+            {{ order.items?.length }} item{{ order.items?.length !== 1 ? 's' : '' }}
+          </span>
+          <span class="mo-order-total">₹{{ order.total | number }}</span>
+          <span class="mo-status-badge" [class]="getStatusClass(order.status)">
+            {{ order.status | titlecase }}
+          </span>
+          <span class="mo-chevron" [class.rotated]="expanded === order.id">›</span>
+        </div>
+
+      </div>
+
+      <!-- ── Expanded Content ──────────────────────────────── -->
+      <div class="mo-order-body" *ngIf="expanded === order.id">
+
+        <!-- Tracking Stepper -->
+        <div class="mo-tracker" *ngIf="!isCancelled(order.status)">
+          <div class="mo-track-step"
+               *ngFor="let step of ['Order Placed','Confirmed','Shipped','Delivered']; let si = index"
+               [class.done]="getStatusStep(order.status) >= si"
+               [class.active]="getStatusStep(order.status) === si">
+            <div class="mo-track-circle">
+              <span *ngIf="getStatusStep(order.status) > si">✓</span>
+              <span *ngIf="getStatusStep(order.status) <= si">{{ si + 1 }}</span>
+            </div>
+            <span class="mo-track-label">{{ step }}</span>
+            <div class="mo-track-line" *ngIf="si < 3"
+                 [class.filled]="getStatusStep(order.status) > si"></div>
+          </div>
+        </div>
+
+        <!-- Cancelled banner -->
+        <div *ngIf="isCancelled(order.status)" class="mo-cancelled-banner">
+          ✕ This order was cancelled
+        </div>
+
+        <!-- Two-column: items + address -->
+        <div class="mo-body-grid">
+
+          <!-- Items -->
+          <div class="mo-items-section">
+            <h6 class="mo-section-label">Items Ordered</h6>
+            <div class="mo-item" *ngFor="let item of order.items">
+              <img [src]="item.image || 'assets/images/placeholder.png'"
+                   [alt]="item.name" class="mo-item-img">
+              <div class="mo-item-info">
+                <span class="mo-item-name">{{ item.name }}</span>
+                <span class="mo-item-qty">Qty: {{ item.quantity }}</span>
+              </div>
+              <span class="mo-item-price">₹{{ item.price * item.quantity | number }}</span>
+            </div>
+          </div>
+
+          <!-- Delivery + Payment -->
+          <div class="mo-details-section">
+
+            <div class="mo-detail-block">
+              <h6 class="mo-section-label">Delivery Address</h6>
+              <p class="mo-addr">
+                <strong>{{ order.full_name }}</strong><br>
+                {{ order.address }},<br>
+                {{ order.city }}, {{ order.state }} — {{ order.pincode }}
+              </p>
+            </div>
+
+            <div class="mo-detail-block">
+              <h6 class="mo-section-label">Payment</h6>
+              <p class="mo-payment">
+                <span class="mo-cod-badge">{{ order.payment_mode }}</span>
+              </p>
+            </div>
+
+            <div class="mo-price-summary">
+              <div class="mo-price-row">
+                <span>Subtotal</span>
+                <span>₹{{ order.subtotal | number }}</span>
+              </div>
+              <div class="mo-price-row">
+                <span>Delivery</span>
+                <span class="free">FREE</span>
+              </div>
+              <div class="mo-price-row mo-price-total">
+                <span>Total</span>
+                <span>₹{{ order.total | number }}</span>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+</div>

@@ -1,111 +1,125 @@
-<div class="layout-container d-flex flex-column min-vh-100">
-  <!-- ✅ Fixed Header -->
-<header class="navbar navbar-expand-lg navbar-light bg-white shadow-sm fixed-top">
-  <div class="container-fluid px-3 d-flex align-items-center justify-content-between">
-    
-    <!-- Sidebar Toggle (mobile) -->
-    <button
-      class="btn btn-outline-secondary d-lg-none me-2"
-      (click)="toggleSidebar()"
-    >
-      <i class="bi" [ngClass]="isSidebarOpen ? 'bi-x-lg' : 'bi-list'"></i>
-    </button>
+<div class="layout-container">
 
-    <!-- Logo -->
-    <a class="navbar-brand fw-bold mb-0">🛍️ Ritik Store</a>
+  <!-- ================= HEADER ================= -->
+  <header class="main-header fixed-top">
 
-    <!-- Desktop Search Bar -->
-    <div class="d-none d-lg-flex flex-grow-1 justify-content-center align-items-center">
-      <input
-        type="text"
-        class="form-control w-50 me-2"
-        placeholder="Search products..."
-      />
-      <button class="btn btn-primary">Search</button>
+    <!-- Top Bar -->
+    <div class="top-bar d-flex justify-content-between align-items-center px-3">
+      <div class="logo-section d-flex align-items-center">
+        <button class="btn btn-light d-lg-none me-2" (click)="toggleSidebar()">
+          <i class="bi bi-list"></i>
+        </button>
+        <span class="brand-logo">🛍️ Ritik Store</span>
+      </div>
+
+      <!-- Search -->
+      <div class="search-wrapper d-none d-lg-flex">
+        <input type="text" placeholder="Search for products, brands and more">
+        <button><i class="bi bi-search"></i></button>
+      </div>
+
+      <!-- Right Actions -->
+      <div class="header-actions d-flex align-items-center">
+
+        <button class="btn btn-light d-lg-none me-2" (click)="toggleSearch()">
+          <i class="bi bi-search"></i>
+        </button>
+
+        <!-- Cart -->
+        <a routerLink="/cart" class="cart-btn position-relative me-3">
+          <i class="bi bi-cart3"></i>
+          <span *ngIf="cartCount > 0" class="cart-badge">{{ cartCount }}</span>
+        </a>
+
+        <!-- Show username if logged in -->
+        <span *ngIf="isLoggedIn" class="user-name me-2">
+          👤 {{ userName }}
+        </span>
+
+        <!-- Login / Logout -->
+        <ng-container *ngIf="!isLoggedIn; else logoutBtn">
+          <a routerLink="/login" class="btn btn-primary btn-sm">Login</a>
+        </ng-container>
+
+        <ng-template #logoutBtn>
+          <button class="btn btn-danger btn-sm" (click)="logout()">Logout</button>
+        </ng-template>
+
+      </div>
     </div>
 
-    <!-- Right Icons (always in one line) -->
-    <div class="d-flex align-items-center">
-      <!-- Mobile Search Icon -->
-      <button
-        class="btn btn-outline-primary d-lg-none me-2"
-        (click)="toggleSearch()"
-      >
-        <i class="bi" [ngClass]="isSearchOpen ? 'bi-x-lg' : 'bi-search'"></i>
-      </button>
+    <!-- Category Navigation (Desktop) -->
+    <div class="category-bar d-none d-lg-flex">
 
-      <!-- Cart -->
-      <!-- <a routerLink="/cart" class="btn btn-outline-dark me-2"> -->
-        <a class="btn btn-outline-dark me-2">
-        <i class="bi bi-cart"></i>
-      </a>
+      <!-- Admin only -->
+      <a *ngIf="isAdmin" routerLink="/dashboard">Dashboard</a>
+      <a *ngIf="isAdmin" routerLink="/pages/add-product">Add Product</a>
 
-      <!-- Login / Logout -->
-      <ng-container *ngIf="!isLoggedIn; else logoutBtn">
-        <a routerLink="/login" class="btn btn-outline-primary">Login</a>
-      </ng-container>
-      <ng-template #logoutBtn>
-        <button class="btn btn-outline-danger" (click)="logout()">Logout</button>
-      </ng-template>
+      <!-- All users -->
+      <a routerLink="/pages/home">Home</a>
+      <a *ngIf="isLoggedIn" routerLink="/my-orders">My Orders</a>
+      <a>Fashion</a>
+      <a>Home & Living</a>
+
     </div>
-  </div>
 
-  <!-- Collapsible Mobile Search -->
-  <div
-    *ngIf="isSearchOpen"
-    class="mobile-search bg-light py-2 px-3 border-top"
-  >
-    <div class="d-flex">
-      <input
-        type="text"
-        class="form-control me-2"
-        placeholder="Search products..."
-      />
-      <button class="btn btn-primary">Search</button>
+    <!-- Mobile Search -->
+    <div *ngIf="isSearchOpen" class="mobile-search d-lg-none">
+      <input type="text" placeholder="Search products...">
+      <button><i class="bi bi-search"></i></button>
     </div>
-  </div>
-</header>
 
+  </header>
 
-  <!-- ✅ Overlay -->
+  <!-- ================= SIDEBAR ================= -->
+  <aside class="sidebar" [class.open]="isSidebarOpen">
+    <h5>Menu</h5>
+
+    <!-- Admin only -->
+    <a *ngIf="isAdmin" routerLink="/dashboard" (click)="closeSidebar()">Dashboard</a>
+    <a *ngIf="isAdmin" routerLink="/pages/add-product" (click)="closeSidebar()">Add Product</a>
+
+    <!-- All users -->
+    <a routerLink="/pages/home" (click)="closeSidebar()">Home</a>
+    <a *ngIf="isLoggedIn" routerLink="/my-orders" (click)="closeSidebar()">My Orders</a>
+    <a (click)="closeSidebar()">Fashion</a>
+    <a (click)="closeSidebar()">Home & Living</a>
+
+  </aside>
+
   <div class="overlay" *ngIf="isSidebarOpen" (click)="closeSidebar()"></div>
 
-  <!-- ✅ Body -->
-  <div class="d-flex flex-grow-1 position-relative content-wrapper">
-    <!-- Sidebar -->
-    <aside class="sidebar bg-white shadow-sm p-3" [class.open]="isSidebarOpen">
-      <h5 class="fw-bold mb-3">Categories</h5>
-      <ul class="list-group">
-        <li class="list-group-item">
-          <a routerLink="/dashboard" (click)="closeSidebar()"
-            >Dashboard</a
-          >
-        </li>
-        <li class="list-group-item">
-          <a routerLink="pages/home" (click)="closeSidebar()">Home</a>
-        </li>
-        
-        <li class="list-group-item">
-          <a (click)="closeSidebar()"
-            >Fashion</a
-          >
-        </li>
-        <li class="list-group-item">
-          <a (click)="closeSidebar()"
-            >Home & Living</a
-          >
-        </li>
-      </ul>
-    </aside>
+  <!-- ================= MAIN ================= -->
+  <main class="main-content">
+    <router-outlet></router-outlet>
+  </main>
 
-    <!-- Main Content -->
-    <main class="flex-grow-1 p-3 main-content">
-      <router-outlet></router-outlet>
-    </main>
-  </div>
-
-  <!-- ✅ Footer -->
-  <footer class="bg-dark text-white text-center py-3 mt-auto">
-    <p class="mb-0">&copy; {{ currentYear }} Ritik Store. All rights reserved.</p>
+  <!-- ================= FOOTER ================= -->
+  <footer class="main-footer">
+    <div class="footer-grid">
+      <div>
+        <h6>About</h6>
+        <p>India's trusted online store delivering quality products.</p>
+      </div>
+      <div>
+        <h6>Help</h6>
+        <p>Shipping</p>
+        <p>Returns</p>
+        <p>Support</p>
+      </div>
+      <div>
+        <h6>Policy</h6>
+        <p>Privacy Policy</p>
+        <p>Terms & Conditions</p>
+      </div>
+      <div>
+        <h6>Contact</h6>
+        <p>Email: support&#64;ritikstore.com</p>
+      </div>
+    </div>
+    <div class="copyright">
+      © {{ currentYear }} Ritik Store. All rights reserved.
+    </div>
   </footer>
+
 </div>

@@ -1,0 +1,259 @@
+<!-- Toast -->
+<div class="co-toast"
+     [class.show]="toast.show"
+     [class.toast-success]="toast.type==='success'"
+     [class.toast-error]="toast.type==='error'">
+  {{ toast.message }}
+</div>
+
+<div class="co-page">
+
+  <!-- ── Progress Bar ───────────────────────────────────── -->
+  <div class="co-progress">
+    <div class="co-progress-inner">
+
+      <div class="co-step" [class.active]="step >= 1" [class.done]="step > 1">
+        <div class="co-step-circle">
+          <span *ngIf="step <= 1">1</span>
+          <span *ngIf="step > 1">✓</span>
+        </div>
+        <span class="co-step-label">Delivery Address</span>
+      </div>
+
+      <div class="co-step-line" [class.filled]="step > 1"></div>
+
+      <div class="co-step" [class.active]="step >= 2">
+        <div class="co-step-circle">2</div>
+        <span class="co-step-label">Review & Pay</span>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="container co-body">
+    <div class="co-grid">
+
+      <!-- LEFT COLUMN -->
+      <div class="co-left">
+
+        <!-- STEP 1: Address -->
+        <div *ngIf="step === 1" class="co-card">
+          <div class="co-card-header">
+            <h5>📍 Delivery Address</h5>
+            <p>Where should we deliver your order?</p>
+          </div>
+
+          <form [formGroup]="addressForm" (ngSubmit)="goToReview()">
+
+            <div class="co-row-2">
+              <div class="co-field">
+                <label>Full Name *</label>
+                <input type="text" formControlName="fullName"
+                       placeholder="Enter your full name"
+                       [class.invalid]="hasError('fullName')">
+                <small *ngIf="hasError('fullName')">Enter your full name (min 3 chars)</small>
+              </div>
+              <div class="co-field">
+                <label>Mobile Number *</label>
+                <div class="co-phone-wrap">
+                  <span class="co-phone-code">+91</span>
+                  <input type="tel" formControlName="phone"
+                         placeholder="Enter 10-digit mobile number" maxlength="10"
+                         [class.invalid]="hasError('phone')">
+                </div>
+                <small *ngIf="hasError('phone')">Enter valid 10-digit number</small>
+              </div>
+            </div>
+
+            <div class="co-row-2">
+              <div class="co-field">
+                <label>Pincode *</label>
+                <input type="text" formControlName="pincode"
+                       placeholder="Enter 6-digit pincode" maxlength="6"
+                       [class.invalid]="hasError('pincode')">
+                <small *ngIf="hasError('pincode')">Enter valid 6-digit pincode</small>
+              </div>
+              <div class="co-field">
+                <label>City / District *</label>
+                <input type="text" formControlName="city"
+                       placeholder="Enter city or district"
+                       [class.invalid]="hasError('city')">
+                <small *ngIf="hasError('city')">City is required</small>
+              </div>
+            </div>
+
+            <div class="co-field">
+              <label>House No, Building, Street *</label>
+              <textarea formControlName="address" rows="3"
+                        placeholder="Enter full address with house number, building name, street, etc."
+                        [class.invalid]="hasError('address')"></textarea>
+              <small *ngIf="hasError('address')">Enter full address (min 10 characters)</small>
+            </div>
+
+            <div class="co-row-2">
+              <div class="co-field">
+                <label>State *</label>
+                <select formControlName="state" [class.invalid]="hasError('state')">
+                  <option value="">Select State</option>
+                  <option *ngFor="let s of STATES" [value]="s">{{ s }}</option>
+                </select>
+                <small *ngIf="hasError('state')">Please select your state</small>
+              </div>
+              <div class="co-field">
+                <label>Landmark <span class="optional">(optional)</span></label>
+                <input type="text" formControlName="landmark" placeholder="Enter nearby landmark (e.g. 'Opposite Central Park')">
+              </div>
+            </div>
+
+            <button type="submit" class="co-btn-primary">
+              Continue to Review →
+            </button>
+
+          </form>
+        </div>
+
+        <!-- STEP 2: Review & Pay -->
+        <div *ngIf="step === 2" class="co-card">
+
+          <div class="co-card-header">
+            <h5>📦 Review Your Order</h5>
+            <p>Confirm items and choose payment method</p>
+          </div>
+
+          <!-- Address preview -->
+          <div class="co-addr-preview">
+            <div class="co-addr-top">
+              <span class="co-addr-name">{{ addressForm.value.fullName }}</span>
+              <span class="co-addr-phone">+91 {{ addressForm.value.phone }}</span>
+            </div>
+            <p class="co-addr-line">
+              {{ addressForm.value.address }},
+              <span *ngIf="addressForm.value.landmark">{{ addressForm.value.landmark }}, </span>
+              {{ addressForm.value.city }}, {{ addressForm.value.state }} — {{ addressForm.value.pincode }}
+            </p>
+            <button class="co-btn-link" (click)="goBack()">✏ Change Address</button>
+          </div>
+
+          <!-- Items -->
+          <div class="co-review-items">
+            <div class="co-review-item" *ngFor="let item of cartItems">
+              <img [src]="item.image" [alt]="item.name" class="co-ri-img">
+              <div class="co-ri-info">
+                <span class="co-ri-name">{{ item.name }}</span>
+                <span class="co-ri-qty">Qty: {{ item.quantity }}</span>
+              </div>
+              <span class="co-ri-price">₹{{ item.price * item.quantity | number }}</span>
+            </div>
+          </div>
+
+          <!-- ── Payment Method ──────────────────────────── -->
+          <div class="co-payment-section">
+            <h6 class="co-payment-title">Choose Payment Method</h6>
+
+            <div class="co-payment-options">
+
+              <!-- COD -->
+              <div class="co-pm-option"
+                   [class.selected]="paymentMode === 'COD'"
+                   (click)="selectPaymentMode('COD')">
+                <div class="co-pm-radio">
+                  <div class="co-pm-dot" *ngIf="paymentMode === 'COD'"></div>
+                </div>
+                <span class="co-pm-icon">💵</span>
+                <div class="co-pm-text">
+                  <strong>Cash on Delivery</strong>
+                  <p>Pay when your order arrives</p>
+                </div>
+              </div>
+
+              <!-- Online -->
+              <div class="co-pm-option"
+                   [class.selected]="paymentMode === 'ONLINE'"
+                   (click)="selectPaymentMode('ONLINE')">
+                <div class="co-pm-radio">
+                  <div class="co-pm-dot" *ngIf="paymentMode === 'ONLINE'"></div>
+                </div>
+                <span class="co-pm-icon">💳</span>
+                <div class="co-pm-text">
+                  <strong>Pay Online</strong>
+                  <p>UPI · Cards · Netbanking via Cashfree</p>
+                </div>
+                <img src="assets/images/cashfree-logo.png"
+                     class="co-cf-logo"
+                     onerror="this.style.display='none'">
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="co-review-actions">
+            <button class="co-btn-secondary" (click)="goBack()">← Back</button>
+            <button class="co-btn-place"
+                    (click)="placeOrder()"
+                    [disabled]="placing">
+              <span *ngIf="!placing && paymentMode === 'COD'">
+                🎉 Place Order · ₹{{ getTotal() | number }}
+              </span>
+              <span *ngIf="!placing && paymentMode === 'ONLINE'">
+                💳 Pay ₹{{ getTotal() | number }} Online
+              </span>
+              <span *ngIf="placing">
+                <span class="co-spinner"></span>
+                {{ paymentMode === 'ONLINE' ? 'Processing...' : 'Placing order...' }}
+              </span>
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- RIGHT: Order Summary -->
+      <div class="co-right">
+        <div class="co-summary">
+
+          <h6 class="co-summary-title">Order Summary</h6>
+
+          <div class="co-summary-items">
+            <div class="co-si" *ngFor="let item of cartItems">
+              <div class="co-si-img-wrap">
+                <img [src]="item.image" [alt]="item.name">
+                <span class="co-si-qty-badge">{{ item.quantity }}</span>
+              </div>
+              <span class="co-si-name">{{ item.name }}</span>
+              <span class="co-si-price">₹{{ item.price * item.quantity | number }}</span>
+            </div>
+          </div>
+
+          <div class="co-summary-divider"></div>
+
+          <div class="co-summary-row">
+            <span>Subtotal ({{ getItemCount() }} items)</span>
+            <span>₹{{ getSubtotal() | number }}</span>
+          </div>
+          <div class="co-summary-row">
+            <span>Delivery</span>
+            <span class="free">FREE</span>
+          </div>
+
+          <div class="co-summary-divider"></div>
+
+          <div class="co-summary-row co-total-row">
+            <span>Total</span>
+            <span>₹{{ getTotal() | number }}</span>
+          </div>
+
+          <p class="co-summary-savings">🎉 You're saving on delivery charges</p>
+
+          <div class="co-trust">
+            <div class="co-trust-item">🔒 <span>Secure Checkout</span></div>
+            <div class="co-trust-item">🚚 <span>Free Delivery</span></div>
+            <div class="co-trust-item">↩ <span>Easy Returns</span></div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
